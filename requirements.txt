@@ -1,0 +1,4 @@
+mediapipe==0.8.9.1
+opencv-python==4.5.3.56
+pyperclip==1.8.2
+numpy==1.21.2
