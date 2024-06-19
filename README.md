@@ -1,174 +1,158 @@
+Hand Gesture Controlled Interactive Painting
+This project implements an interactive painting application where users can paint on a virtual canvas using hand gestures detected via OpenCV and Mediapipe. It provides a unique and intuitive way to create digital art, leveraging real-time hand tracking and gesture recognition.
 
+Features
+Gesture-Based Painting: Use hand gestures to draw lines and shapes on a virtual canvas.
+Real-Time Feedback: Visual indicators show the current drawing tool, color, and canvas position.
+Customizable Brushes: Select from various brush sizes and colors using intuitive hand movements.
+Creative Freedom: Enables users to paint digitally without physical tools, enhancing creativity and accessibility.
+Requirements
+Python 3.x
+OpenCV
+Mediapipe
+NumPy
+Installation
+Clone the repository:
 
-# Nose and Hand Gesture Controlled Virtual Keyboard
+sh
+Copy code
+git clone https://github.com/your-username/gesture-controlled-painting.git
+cd gesture-controlled-painting
+Set up a virtual environment (optional but recommended):
 
-This project implements a virtual keyboard that can be controlled using nose gestures for selecting keys and right-hand gestures for pressing them. Utilizing Mediapipe for face and hand tracking, this innovative solution allows for hands-free typing, which can be particularly useful for individuals with limited mobility or for touchless interactions in hygienic environments.
+sh
+Copy code
+python -m venv venv
+source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+Install the required packages:
 
-## Features
+sh
+Copy code
+pip install -r requirements.txt
+Usage
+Run the script:
 
-- **Nose Gesture Selection**: Use your nose to hover over and select keys on the virtual keyboard.
-- **Right Hand Gesture Press**: Use the index finger of your right hand to press the selected key.
-- **Real-Time Feedback**: The virtual keyboard provides real-time visual feedback, highlighting selected keys.
-- **Touchless Typing**: Enables hands-free typing, ideal for accessibility and hygienic use cases.
+sh
+Copy code
+python gesture_controlled_painting.py
+Interacting with the Painting Application:
 
-## Requirements
+Draw on Canvas: Use your index finger to draw lines and shapes on the virtual canvas.
+Change Brush Size: Move your hand closer or further from the camera to adjust the brush size.
+Select Color: Use gestures to choose different colors for painting.
+Undo/Redo: Perform specific gestures (e.g., swipe left/right) to undo or redo actions.
+Clear Canvas: Use a specific gesture (e.g., making a fist) to clear the entire canvas.
+Exit the Application: Press the 'q' key to exit the painting application.
 
-- Python 3.x
-- Mediapipe
-- OpenCV
-- Pyperclip
-- NumPy
-
-## Installation
-
-1. **Clone the repository**:
-   ```sh
-   git clone https://github.com/your-username/nose-and-hand-gesture-keyboard.git
-   cd nose-and-hand-gesture-keyboard
-   ```
-
-2. **Set up a virtual environment** (optional but recommended):
-   ```sh
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   ```
-
-3. **Install the required packages**:
-   ```sh
-   pip install -r requirements.txt
-   ```
-
-## Usage
-
-1. **Run the script**:
-   ```sh
-   python nose_hand_gesture_keyboard.py
-   ```
-
-2. **Interacting with the Keyboard**:
-   - **Select a Key**: Move your nose over the desired key on the virtual keyboard to select it. The key will be highlighted.
-   - **Press the Key**: Raise the index finger of your right hand to press the selected key. The typed word will appear below the keyboard.
-   - **Copy Text**: Press the "COPY" button to copy the typed text to the clipboard.
-
-3. **Exit the Application**: Press the 'q' key to exit the application.
-
-## Project Structure
-
-```
-nose-and-hand-gesture-keyboard/
-├── nose_hand_gesture_keyboard.py
+Project Structure
+Copy code
+gesture-controlled-painting/
+├── gesture_controlled_painting.py
 ├── requirements.txt
 └── README.md
-```
-
-### requirements.txt
-
-The `requirements.txt` file is used to specify the dependencies needed for the project. It lists the required Python packages along with their versions to ensure compatibility. Here is what it contains:
-
-```
-mediapipe==0.8.9.1
+requirements.txt
+makefile
+Copy code
 opencv-python==4.5.3.56
-pyperclip==1.8.2
+mediapipe==0.8.9.1
 numpy==1.21.2
-```
+Installing Dependencies
+To install the dependencies listed in requirements.txt, run the following command:
 
-### Installing Dependencies
-
-To install the dependencies listed in `requirements.txt`, run the following command:
-
-```sh
+sh
+Copy code
 pip install -r requirements.txt
-```
+This command installs all necessary packages for the project.
 
-This command will install all the necessary packages specified in the file.
+Code Explanation
+Import Libraries
+python
+Copy code
+import cv2
+import mediapipe as mp
+import numpy as np
+cv2: OpenCV library for computer vision tasks, including image and video processing.
+mediapipe: Google's Mediapipe library for hand tracking.
+numpy: Library for numerical computing and array operations.
+Initialize Mediapipe Hands
+python
+Copy code
+mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
+Initializes Mediapipe for hand tracking (mp_hands) and drawing utilities (mp_drawing).
+Global Variables
+python
+Copy code
+gesture_start_time = 0
+gesture_duration = 1.5
+gesture_start_time: Tracks the time when a gesture is recognized.
+gesture_duration: Maximum time duration considered for a continuous gesture.
+Function: detect_gesture
+python
+Copy code
+def detect_gesture(hand_landmarks):
+    # Detects and interprets hand gestures to control the painting application
+Analyzes hand landmarks to interpret gestures like drawing, changing brush size, selecting colors, and managing canvas actions.
+Function: draw_interface
+python
+Copy code
+def draw_interface(image, current_tool, current_color):
+    # Draws the painting interface with visual feedback for detected gestures
+Renders the virtual canvas, current drawing tool, selected color, and visual feedback for detected gestures on the screen.
+Main Program Execution
+python
+Copy code
+# Initialize video capture
+cap = cv2.VideoCapture(0)
 
-## Code Explanation
+# Initialize Mediapipe hands model
+with mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.5) as hands:
 
-### Import Libraries
+    while cap.isOpened():
+        success, image = cap.read()
+        if not success:
+            break
 
-- `os`, `cv2`, `mediapipe`, `pyperclip`, `time`, and `numpy` are imported for various functionalities like video capturing, drawing, and handling gestures.
+        image = cv2.flip(image, 1)  # Flip image horizontally for a mirror effect
 
-### Suppress TensorFlow Lite Logging
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert image color to RGB
+        results = hands.process(image_rgb)  # Process image for hand detection
 
-- We suppress some of the logging output to keep the console clean.
+        image = cv2.cvtColor(image_rgb, cv2.COLOR_RGB2BGR)  # Convert image color back to BGR for OpenCV
 
-### Initialize Mediapipe Face Mesh and Hands
+        # Extract hand landmarks
+        if results.multi_hand_landmarks:
+            for hand_landmarks in results.multi_hand_landmarks:
+                gesture = detect_gesture(hand_landmarks)
 
-- `mp_face_mesh` and `mp_hands` are used to detect face and hand landmarks.
-- `mp_drawing` is used to draw landmarks on the screen.
+                # Perform actions based on detected gesture
+                if gesture == "DRAW":
+                    # Draw on canvas
+                elif gesture == "CHANGE_BRUSH_SIZE":
+                    # Adjust brush size
+                elif gesture == "SELECT_COLOR":
+                    # Choose color
+                elif gesture == "UNDO":
+                    # Undo last action
+                elif gesture == "REDO":
+                    # Redo last undone action
+                elif gesture == "CLEAR_CANVAS":
+                    # Clear entire canvas
 
-### Variables
+        # Draw painting interface with canvas and gesture feedback
+        draw_interface(image, current_tool, current_color)
 
-- `typed_word` holds the current text being typed.
-- `cooldown_time` and `last_key_press_time` help control the typing speed.
+        cv2.imshow('Gesture-Controlled Painting', image)  # Display the painting interface
 
-### Function: `recognize_gesture`
+        if cv2.waitKey(1) & 0xFF == ord('q'):  # Exit loop on 'q' key press
+            break
 
-- This function determines which key the nose is pointing at. It uses the nose's position to find the corresponding key on the virtual keyboard.
-
-### Function: `draw_virtual_keyboard`
-
-- This function draws the virtual keyboard on the screen. It highlights the selected key and shows the typed word.
-
-### Function: `is_copy_button_pressed`
-
-- This function checks if the copy button is pressed based on the nose's position.
-
-### Main Code Block
-
-- We capture video from the webcam.
-- Initialize Mediapipe for face and hand detection.
-- Continuously read frames from the webcam, process them, and display the virtual keyboard.
-- The nose is used to select keys, and the right hand's index finger is used to press keys.
-
-## Simple Explanation for Each Section
-
-### Import Libraries
-
-Think of these like getting different colored crayons before starting a drawing. Each library helps us do different things in our code.
-
-### Suppress TensorFlow Lite Logging
-
-This is like telling the noisy kids in the room to be quiet so you can focus on your work.
-
-### Initialize Mediapipe Face Mesh and Hands
-
-These are like the magic glasses that help us see and understand where the face and hands are.
-
-### Variables
-
-These are like little boxes where we store important information, like what we've typed so far.
-
-### Function: `recognize_gesture`
-
-This is a helper who looks at where your nose is pointing and tells us which key it is pointing at.
-
-### Function: `draw_virtual_keyboard`
-
-This helper draws the keyboard on the screen and shows which key is selected.
-
-### Function: `is_copy_button_pressed`
-
-This helper checks if the nose is over the "COPY" button.
-
-### Main Code Block
-
-This is the main part of our project. It continuously looks at the video from the webcam, finds where the nose and hands are, and updates the virtual keyboard.
-
-## Contributions
-
-Contributions are welcome! If you have any improvements or bug fixes, feel free to open an issue or submit a pull request.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Acknowledgements
-
-- [Mediapipe](https://mediapipe.dev/) for providing powerful machine learning solutions for face and hand tracking.
-- [OpenCV](https://opencv.org/) for computer vision functionalities.
-- [Pyperclip](https://pyperclip.readthedocs.io/) for clipboard functionalities.
-- [NumPy](https://numpy.org/) for numerical computing support.
-```
-
-You can use this content to create or update the `README.md` file in your GitHub repository. This version provides detailed explanations for each section of the code and offers simple explanations for easy understanding.
+cap.release()
+cv2.destroyAllWindows()
+Explanation
+Capture Video: Initializes webcam capture (cap) using OpenCV.
+Main Loop: Continuously reads frames from the webcam, processes them for hand detection using Mediapipe, and updates the painting interface.
+Hand Detection: Uses Mediapipe to detect and track hand landmarks for gesture recognition.
+Gesture Recognition: Interprets hand gestures to control actions like drawing, adjusting brush size, selecting colors, and managing canvas actions (undo, redo, clear).
+Interface Rendering: Draws the virtual canvas, current drawing tool, selected color, and visual feedback for detected gestures on the screen.
+This project enables interactive and creative painting using hand gestures, suitable for applications requiring touchless interaction, digital art creation, and enhanced accessibility. Adjustments and enhancements can be made to customize gesture recognition or add additional functionalities as needed.
